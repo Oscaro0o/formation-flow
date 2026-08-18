@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Ton profil de concentration — Formation État de Flow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EDEEEA;
+  --card:#F8F9F6;
+  --ink:#15181B;
+  --ink-soft:#585F5A;
+  --rule:#D0D3CB;
+  --chill:#A96C14;
+  --chaotique:#9A362E;
+  --overthinker:#3B4A8A;
+  --rqk:#286654;
+  --accent:var(--ink);
+  --display:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;
+  --body:"Source Serif 4",Georgia,serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--body);
+  font-size:17px;
+  line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:660px;margin:0 auto;padding:28px 22px 80px}
+
+/* ---------- bandeau de progression : ruban de minuteur ---------- */
+.tape{position:sticky;top:0;z-index:5;background:var(--paper);padding:14px 0 10px;margin-bottom:34px}
+.tape-meta{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--mono);font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:9px}
+.tape-track{position:relative;height:3px;background:var(--rule)}
+.tape-fill{position:absolute;inset:0 auto 0 0;width:0;background:var(--ink);transition:width .32s cubic-bezier(.4,0,.2,1)}
+.tape-ticks{display:flex;margin-top:5px;gap:0}
+.tick{flex:1;height:5px;border-left:1px solid var(--rule)}
+.tick:last-child{border-right:1px solid var(--rule)}
+
+/* ---------- typographie ---------- */
+.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 14px}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(30px,6.4vw,42px);line-height:1.08;letter-spacing:-.02em;margin:0 0 20px}
+h2{font-family:var(--display);font-weight:700;font-size:clamp(24px,4.6vw,30px);line-height:1.14;letter-spacing:-.015em;margin:0 0 14px}
+h3{font-family:var(--display);font-weight:600;font-size:15px;letter-spacing:.02em;margin:0 0 10px}
+p{margin:0 0 16px}
+.lede{font-size:19px}
+.soft{color:var(--ink-soft)}
+
+/* ---------- écrans ---------- */
+.screen{display:none;animation:rise .34s ease both}
+.screen.on{display:block}
+@keyframes rise{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+
+/* ---------- questions ---------- */
+.question{font-family:var(--display);font-weight:500;font-size:clamp(21px,4.2vw,27px);line-height:1.26;letter-spacing:-.012em;margin:0 0 26px}
+.answers{display:flex;flex-direction:column;gap:9px}
+.answer{
+  display:flex;align-items:flex-start;gap:13px;width:100%;text-align:left;
+  font-family:var(--body);font-size:16.5px;line-height:1.45;color:var(--ink);
+  background:var(--card);border:1px solid var(--rule);border-radius:2px;
+  padding:15px 17px;cursor:pointer;transition:border-color .15s,background .15s,transform .12s;
+}
+.answer:hover{border-color:var(--ink);background:#fff}
+.answer:active{transform:translateY(1px)}
+.answer:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.key{font-family:var(--mono);font-size:11.5px;color:var(--ink-soft);padding-top:3px;min-width:14px}
+.hint{font-family:var(--mono);font-size:11.5px;color:var(--ink-soft);margin-top:20px;letter-spacing:.03em}
+.back{background:none;border:none;font-family:var(--mono);font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-soft);cursor:pointer;padding:8px 0;margin-top:18px}
+.back:hover{color:var(--ink)}
+
+/* ---------- boutons ---------- */
+.btn{
+  font-family:var(--display);font-weight:600;font-size:15px;letter-spacing:.01em;
+  background:var(--ink);color:var(--paper);border:1px solid var(--ink);
+  padding:14px 26px;border-radius:2px;cursor:pointer;transition:opacity .15s;
+}
+.btn:hover{opacity:.86}
+.btn:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.btn-ghost{background:none;color:var(--ink)}
+
+/* ---------- résultat ---------- */
+.profil-name{font-family:var(--display);font-weight:700;font-size:clamp(34px,8vw,52px);line-height:1;letter-spacing:-.03em;margin:0 0 8px;color:var(--accent)}
+.branche{font-family:var(--mono);font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 26px}
+
+/* signature : le relevé des quatre scores */
+.releve{border-top:1px solid var(--ink);border-bottom:1px solid var(--rule);padding:18px 0 14px;margin:0 0 30px}
+.bar-row{display:grid;grid-template-columns:132px 1fr 30px;align-items:center;gap:12px;margin-bottom:9px}
+.bar-label{font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft)}
+.bar-row.lead .bar-label{color:var(--ink)}
+.bar-track{height:9px;background:#E3E5DF}
+.bar-fill{height:100%;width:0;background:var(--ink-soft);transition:width .7s cubic-bezier(.2,.7,.2,1)}
+.bar-row.lead .bar-fill{background:var(--accent)}
+.bar-num{font-family:var(--mono);font-size:12px;color:var(--ink-soft);text-align:right}
+
+.note{border-left:2px solid var(--accent);padding:2px 0 2px 16px;margin:0 0 30px;font-size:16px}
+.section{margin:0 0 34px}
+.rule{border:0;border-top:1px solid var(--rule);margin:34px 0}
+
+/* fiche protocole */
+.fiche{background:var(--card);border:1px solid var(--ink);padding:24px 24px 20px;margin:0 0 34px}
+.fiche-head{display:flex;justify-content:space-between;align-items:baseline;gap:14px;border-bottom:1px solid var(--rule);padding-bottom:12px;margin-bottom:18px}
+.fiche-title{font-family:var(--display);font-weight:700;font-size:17px;letter-spacing:-.01em}
+.fiche-dur{font-family:var(--mono);font-size:12px;color:var(--ink-soft);white-space:nowrap}
+.step{display:flex;align-items:flex-start;gap:13px;padding:11px 0;border-bottom:1px dotted var(--rule)}
+.step:last-of-type{border-bottom:0}
+.step input{appearance:none;width:17px;height:17px;min-width:17px;margin:4px 0 0;border:1px solid var(--ink);background:#fff;cursor:pointer;border-radius:1px}
+.step input:checked{background:var(--ink) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5l3.2 3.2L13 5' stroke='%23F8F9F6' stroke-width='2.2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/13px no-repeat}
+.step input:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.step-txt{font-size:16px;line-height:1.45}
+.step-dur{font-family:var(--mono);font-size:12px;color:var(--ink-soft);margin-left:6px;white-space:nowrap}
+.fiche-foot{font-size:14.5px;color:var(--ink-soft);margin:16px 0 0;padding-top:14px;border-top:1px solid var(--rule)}
+
+.secondaire{background:var(--card);border:1px solid var(--rule);padding:20px 22px;margin:0 0 30px}
+.suite{border-top:1px solid var(--rule);padding-top:20px;margin:38px 0 26px;font-size:15.5px;color:var(--ink-soft)}
+.actions{display:flex;flex-wrap:wrap;gap:11px;margin-top:8px}
+
+@media (max-width:520px){
+  .bar-row{grid-template-columns:104px 1fr 26px;gap:9px}
+  .fiche{padding:20px 18px 16px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+
+/* ---------- impression : le portrait, sans l'interface ---------- */
+@media print{
+  body{background:#fff;font-size:12pt}
+  .tape,.actions,.no-print,.back,.suite{display:none!important}
+  .wrap{max-width:none;padding:0}
+  .profil-name{font-size:26pt;color:#000}
+  .bar-fill{background:#000!important}
+  .section{margin-bottom:16px;break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ═══════════════════════════════════════════════════════════
+     PROGRESSION
+     ═══════════════════════════════════════════════════════════ -->
+<div class="tape no-print" id="tape" hidden>
+  <div class="tape-meta"><span id="tapeStep">Question 1 / 11</span><span id="tapeTime">≈ 2 min</span></div>
+  <div class="tape-track"><div class="tape-fill" id="tapeFill"></div></div>
+  <div class="tape-ticks" id="tapeTicks"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     ÉCRAN 1 — INTRODUCTION
+     ═══════════════════════════════════════════════════════════ -->
+<section class="screen on" id="screen-intro">
+  <p class="eyebrow">Module 2 — Ton profil</p>
+  <h1>Onze questions pour savoir comment tu entres en concentration.</h1>
+  <p class="lede">Il n'y a pas de bonne réponse, et aucun profil n'est meilleur qu'un autre. Réponds vite : la première réaction est presque toujours la bonne.</p>
+  <p class="soft">Certaines questions portent sur le jeu, le sport ou un projet personnel plutôt que sur les cours. C'est volontaire — c'est là que tu as réellement connu la concentration, donc là que tes réponses sont fiables.</p>
+  <p><button class="btn" id="start">Commencer</button></p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     ÉCRAN 2 — QUESTIONS
+     ═══════════════════════════════════════════════════════════ -->
+<section class="screen" id="screen-q">
+  <p class="eyebrow" id="qKind">Question d'ancrage</p>
+  <p class="question" id="qText" aria-live="polite"></p>
+  <div class="answers" id="qAnswers"></div>
+  <p class="hint">Touches 1 à 4 pour répondre</p>
+  <button class="back" id="qBack" hidden>← Question précédente</button>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     ÉCRAN 3 — RÉSULTAT
+     ═══════════════════════════════════════════════════════════ -->
+<section class="screen" id="screen-r">
+  <p class="eyebrow">Profil principal</p>
+  <h2 class="profil-name" id="rName"></h2>
+  <p class="branche" id="rBranche"></p>
+
+  <div class="releve" id="rReleve" aria-label="Répartition de tes réponses entre les quatre profils"></div>
+
+  <p class="note" id="rHypo"></p>
+
+  <div class="section">
+    <h3>Ce qui se passe</h3>
+    <div id="rPortrait"></div>
+  </div>
+
+  <div class="section">
+    <h3>Ta force</h3>
+    <p id="rForce"></p>
+  </div>
+
+  <!-- Ligne de transition vers la suite du module. Supprimer si inutile. -->
+  <p class="suite">La suite du module reprend à partir d'ici : comment tu entres en concentration, ton protocole d'entrée et tes points de vigilance.</p>
+
+  <div class="actions no-print">
+    <button class="btn btn-ghost" id="restart">Refaire le questionnaire</button>
+  </div>
+</section>
+
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   ZONE MODIFIABLE — tout le contenu du questionnaire est ici.
+   Rien à toucher en dessous du repère « MOTEUR ».
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* --- Question d'ancrage. Pèse 3 points, et tranche les égalités. --- */
+const ANCRE = {
+  texte: "Il est dix-neuf heures, tu dois t'y mettre. Dans quel état es-tu ?",
+  poids: 3,
+  reponses: [
+    { label: "Éteint, sans énergie, incapable de démarrer",                     profil: "chill" },
+    { label: "Tendu, agité, l'esprit qui court",                                profil: "chaotique" },
+    { label: "La tête occupée par autre chose",                                 profil: "overthinker" },
+    { label: "Ça dépend de mes conditions — mon coin, mes affaires, ou quelqu'un à côté", profil: "rqk" }
+  ]
+};
+
+/* --- Items comportementaux. Vrai = 2, Plutôt = 1, Faux = 0.
+       L'ordre alterne volontairement les profils pour que la grille reste illisible. --- */
+const ITEMS = [
+  { profil:"chill",       texte:"Je suis nettement meilleur après un entraînement ou une marche rapide qu'après une heure de canapé." },
+  { profil:"overthinker", texte:"J'ai mes meilleures idées dans les transports ou sous la douche, presque jamais à mon bureau." },
+  { profil:"chaotique",   texte:"Sur un projet perso, j'ouvre tout en même temps, je commence une chose, je passe à la suivante — et je finis l'heure sans rien avoir terminé." },
+  { profil:"rqk",         texte:"Ranger ma table avant de commencer m'apaise réellement. Ce n'est pas une façon de gagner du temps." },
+  { profil:"chill",       texte:"Je travaille bien en fin de séance, rarement au début. Le temps que la machine démarre, quarante minutes sont passées." },
+  { profil:"chaotique",   texte:"Je dors mal la veille d'une échéance, mais je vais nettement mieux une fois que c'est commencé." },
+  { profil:"overthinker", texte:"Dès que je parle à quelqu'un de ce qui m'occupe, je me sens immédiatement plus disponible." },
+  { profil:"rqk",         texte:"Quand mes conditions habituelles changent — autre lieu, autre horaire, autre matériel — je flotte une heure avant de m'y mettre." }
+];
+
+/* --- Deux items de branche, posés à tout le monde. Total ≥ 3 → branche B (cadre humain). --- */
+const BRANCHE = {
+  seuil: 3,
+  items: [
+    "Seul chez moi dans de bonnes conditions, je décroche au bout de vingt minutes ; en face de quelqu'un qui travaille, même en silence et sur autre chose, je tiens deux heures.",
+    "Je comprends vraiment au moment où j'explique. Tant que je lis, l'information reste floue."
+  ]
+};
+
+const ECHELLE = [
+  { label:"Vrai",   valeur:2 },
+  { label:"Plutôt", valeur:1 },
+  { label:"Faux",   valeur:0 }
+];
+
+/* --- Les quatre profils --- */
+const PROFILS = {
+  chill: {
+    nom:"Le Chill",
+    couleur:"var(--chill)",
+    resume:"un moteur qui tourne au ralenti",
+    portrait:[
+      "Ton problème n'est pas la volonté, c'est le régime physiologique. Tu t'assois pour travailler dans le même état corporel que devant une série : rythme cardiaque bas, posture affaissée, attention flottante. Et tu attends une motivation qui, elle, ne vient jamais avant le mouvement.",
+      "Le nom du profil est à double tranchant, et c'est assumé : ce calme apparent n'est pas de la sérénité. Tu n'as pas besoin de te détendre, tu as besoin de t'allumer."
+    ],
+    force:"Une fois lancé, c'est toi qui tiens le plus longtemps sans décrocher. Tu encaisses la difficulté frontale et tu enchaînes les blocs longs.",
+    ficheTitre:"Protocole d'entrée — Le Chill",
+    duree:"4 min",
+    etapes:[
+      { txt:"Matériel installé, ouvert à la bonne page, minuteur prêt", dur:"30 s" },
+      { txt:"Effort court et sec : trente pompes, deux étages, sprint sur place. Chaud, cœur qui bat, <strong>pas essoufflé</strong>", dur:"3 min" },
+      { txt:"Eau, assise, trois respirations par le nez", dur:"30 s" },
+      { txt:"Minuteur 45 min, attaque directe de la tâche la plus difficile", dur:"" }
+    ],
+    vigilance:"Confondre l'agitation et le travail, puis avoir besoin de doses d'activation de plus en plus fortes. Contre-mesure : une séance par semaine sans échauffement, pour vérifier que tu sais encore démarrer à froid."
+  },
+
+  chaotique: {
+    nom:"Le Chaotique",
+    couleur:"var(--chaotique)",
+    resume:"sur-activé, pas éteint",
+    portrait:[
+      "Le cas inverse du Chill : tu t'assois avec le cœur déjà rapide et le sentiment diffus d'être en retard sur tout. Te faire monter l'énergie serait contre-productif — tu dois redescendre. Ton ennemi n'est pas l'inertie, c'est le bruit interne.",
+      "Les débuts partout ne sont pas de la curiosité mal canalisée, c'est de l'évitement : rester plus de dix minutes sur une difficulté t'est physiquement inconfortable. Le protocole traite les deux désordres dans l'ordre — d'abord le rythme cardiaque, ensuite la table."
+    ],
+    force:"La précision. Une fois redescendu, c'est toi qui commets le moins d'erreurs d'inattention et qui tiens l'exigence de rigueur la plus haute.",
+    ficheTitre:"Protocole d'entrée — Le Chaotique",
+    duree:"5 min",
+    etapes:[
+      { txt:"Respiration carrée : inspire 5 s, retiens 5 s, expire 5 s, retiens 5 s. Dix cycles, en suivant mentalement le tracé du carré", dur:"3 min 20" },
+      { txt:"Une seule ligne écrite en haut de la feuille : ce que tu fais, et rien d'autre", dur:"1 min" },
+      { txt:"Tout ce qui ne sert pas à cette ligne quitte la table", dur:"40 s" },
+      { txt:"Premier exercice sans relire le cours. En cas de blocage, le cours revient — mais après l'essai", dur:"" }
+    ],
+    vigilance:"La respiration devient un moyen d'ajourner. Le protocole est plafonné à cinq minutes, chronomètre à l'appui."
+  },
+
+  overthinker: {
+    nom:"L'Overthinker",
+    couleur:"var(--overthinker)",
+    resume:"ni éteint ni tendu : encombré",
+    portrait:[
+      "Ton attention est disponible, mais elle est déjà occupée — par un message sans réponse, une remarque de la veille, une chose à ne pas oublier demain. C'est le profil le plus mal identifié des quatre : de l'extérieur ça ressemble à un manque de sérieux, de l'intérieur à un défaut de concentration, alors qu'il s'agit d'une saturation de la mémoire de travail.",
+      "Le nom dit exactement ce qui se passe : ce n'est pas que tu penses trop, c'est que tu penses en boucle sur autre chose que ta tâche. Tant que ces boucles ne sont pas fermées, il n'y a pas de place pour le cours."
+    ],
+    force:"Une fois déchargé, c'est toi qui structures et synthétises le mieux. Tes fiches sont utilisables par les autres.",
+    ficheTitre:"Protocole d'entrée — L'Overthinker",
+    duree:"4 min",
+    etapes:[
+      { txt:"Écrire sans s'arrêter tout ce qui occupe l'esprit. Phrases courtes, aucun ordre. Y compris « je n'ai pas envie »", dur:"3 min" },
+      { txt:"Relire une fois, entourer ce qui demande une action réelle, inscrire à côté <strong>le moment</strong> où tu t'en occuperas. C'est le report daté qui libère, pas la simple mise sur papier", dur:"45 s" },
+      { txt:"Feuille pliée, retournée, hors du champ de vision", dur:"15 s" },
+      { txt:"Minuteur 45 min", dur:"" }
+    ],
+    vigilance:"La décharge se transforme en journal intime, puis en rumination écrite — le travers naturel de ce profil, précisément. Trois minutes, pas davantage : on décrit, on n'analyse pas."
+  },
+
+  rqk: {
+    nom:"Routine Queen/King",
+    couleur:"var(--rqk)",
+    resume:"conditionné par le cadre, pas par l'état interne",
+    portrait:[
+      "Tu ne te mets pas en route par un état interne mais par ton cadre. Quand les conditions sont réunies, tu démarres presque sans effort ; quand elles changent, tu flottes une heure. Tu interprètes souvent ça comme de la rigidité, ou comme une manie un peu ridicule.",
+      "C'est en réalité un ancrage : un contexte répété finit par déclencher automatiquement l'état de travail. Ce n'est pas un caprice — c'est le mécanisme sur lequel reposent la plupart des routines vues au module 1."
+    ],
+    force:"La constance. Tu ne fonctionnes pas par pics suivis de jours vides. C'est le profil qui produit tous les jours à un niveau régulier, ce qui, sur une année, l'emporte largement.",
+    vigilance:"Le cadre devient une condition, puis un prétexte : vingt minutes de rangement au lieu de travail, une place occupée à la bibliothèque qui compromet la journée, une session à deux qui tourne à la conversation. Contre-mesure obligatoire : une séance par semaine en conditions dégradées, avec le protocole de secours.",
+    branches:{
+      A:{
+        nom:"Branche A — le cadre matériel",
+        ficheTitre:"Protocole d'entrée — Cadre matériel",
+        duree:"1 min 30",
+        etapes:[
+          { txt:"Même place, table dégagée, quatre objets maximum, toujours les mêmes", dur:"20 s" },
+          { txt:"Matériel disposé dans un ordre invariable : cahier au centre, brouillon à droite, bouteille à gauche. L'ordre importe peu, c'est son invariance qui compte", dur:"30 s" },
+          { txt:"Téléphone éteint, autre pièce", dur:"20 s" },
+          { txt:"Minuteur 45 min, première ligne écrite dans les dix secondes, même une date", dur:"20 s" }
+        ],
+        pied:"L'ancrage se construit sur une dizaine de répétitions. Les premiers jours, le protocole ne produit rien : c'est attendu."
+      },
+      B:{
+        nom:"Branche B — le cadre humain",
+        ficheTitre:"Protocole d'entrée — Cadre humain",
+        duree:"séance de 45 min",
+        etapes:[
+          { txt:"Chacun annonce à voix haute ce qu'il fait et jusqu'où", dur:"1 min" },
+          { txt:"Quarante-cinq minutes de silence strict. Matières différentes de préférence. Téléphones au centre de la table, face contre bois", dur:"45 min" },
+          { txt:"En clôture, chacun explique à l'autre une chose qu'il a comprise, sans ses notes", dur:"3 min" }
+        ],
+        pied:"Version solo, obligatoire : visioconférence caméra allumée et micro coupé. À défaut, un message annonçant la séance et un message la clôturant."
+      }
+    }
+  }
+};
+
+/* --- Renvois de profil quand l'hypothèse ne se vérifie pas (module 4.3) --- */
+const RENVOI = {
+  chill:"un Chill qui ne décolle pas malgré l'échauffement est souvent un Overthinker",
+  chaotique:"un Chaotique que la respiration n'apaise pas est souvent une Routine Queen/King privée de son cadre",
+  overthinker:"un Overthinker que la décharge écrite ne libère pas est souvent un Chaotique",
+  rqk:"une Routine Queen/King qui démarre mal même dans ses conditions est souvent un Chill"
+};
+
+/* ══════════════════════════════════════════════════════════════════════
+   MOTEUR — ne rien modifier ici pour changer le contenu.
+   ══════════════════════════════════════════════════════════════════════ */
+
+const ORDRE = ["chill","chaotique","overthinker","rqk"];
+const $ = id => document.getElementById(id);
+
+const questions = [
+  { type:"ancre", ...ANCRE },
+  ...ITEMS.map(i => ({ type:"item", ...i })),
+  ...BRANCHE.items.map(t => ({ type:"branche", texte:t }))
+];
+
+let index = 0;
+const reponses = new Array(questions.length).fill(null);
+
+function ecran(nom){
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("on"));
+  $("screen-" + nom).classList.add("on");
+  window.scrollTo({ top:0, behavior:"instant" in window ? "instant" : "auto" });
+}
+
+function construireTicks(){
+  $("tapeTicks").innerHTML = questions.map(() => '<span class="tick"></span>').join("");
+}
+
+function afficherQuestion(){
+  const q = questions[index];
+  $("tape").hidden = false;
+  $("tapeStep").textContent = "Question " + (index + 1) + " / " + questions.length;
+  $("tapeFill").style.width = ((index) / questions.length * 100) + "%";
+  $("qKind").textContent = q.type === "ancre" ? "Question d'ancrage" : "Ce qui te ressemble";
+  $("qText").textContent = q.texte;
+  $("qBack").hidden = index === 0;
+
+  const choix = q.type === "ancre"
+    ? q.reponses.map((r, i) => ({ label:r.label, valeur:i }))
+    : ECHELLE.map((e, i) => ({ label:e.label, valeur:i }));
+
+  $("qAnswers").innerHTML = choix.map((c, i) =>
+    '<button class="answer" data-v="' + c.valeur + '"><span class="key">' + (i+1) + '</span><span>' + c.label + '</span></button>'
+  ).join("");
+
+  $("qAnswers").querySelectorAll(".answer").forEach(b => {
+    b.addEventListener("click", () => repondre(parseInt(b.dataset.v, 10)));
+  });
+  const premier = $("qAnswers").querySelector(".answer");
+  if (premier) premier.focus({ preventScroll:true });
+}
+
+function repondre(valeur){
+  reponses[index] = valeur;
+  if (index < questions.length - 1){ index++; afficherQuestion(); }
+  else { $("tapeFill").style.width = "100%"; calculer(); }
+}
+
+document.addEventListener("keydown", e => {
+  if (!$("screen-q").classList.contains("on")) return;
+  const n = parseInt(e.key, 10);
+  const boutons = $("qAnswers").querySelectorAll(".answer");
+  if (n >= 1 && n <= boutons.length){ e.preventDefault(); boutons[n-1].click(); }
+});
+
+$("qBack").addEventListener("click", () => { if (index > 0){ index--; afficherQuestion(); } });
+$("start").addEventListener("click", () => { ecran("q"); afficherQuestion(); });
+
+function calculer(){
+  const scores = { chill:0, chaotique:0, overthinker:0, rqk:0 };
+  let profilAncre = null, scoreB = 0;
+
+  questions.forEach((q, i) => {
+    const v = reponses[i];
+    if (v === null) return;
+    if (q.type === "ancre"){
+      profilAncre = q.reponses[v].profil;
+      scores[profilAncre] += q.poids;
+    } else if (q.type === "item"){
+      scores[q.profil] += ECHELLE[v].valeur;
+    } else {
+      scoreB += ECHELLE[v].valeur;
+    }
+  });
+
+  const classement = ORDRE.slice().sort((a, b) => {
+    if (scores[b] !== scores[a]) return scores[b] - scores[a];
+    if (a === profilAncre) return -1;          // égalité : l'ancrage tranche
+    if (b === profilAncre) return 1;
+    return ORDRE.indexOf(a) - ORDRE.indexOf(b);
+  });
+
+  afficherResultat({
+    principal: classement[0],
+    secondaire: classement[1],
+    ecart: scores[classement[0]] - scores[classement[1]],
+    scores,
+    branche: scoreB >= BRANCHE.seuil ? "B" : "A"
+  });
+}
+
+function afficherResultat(r){
+  const p = PROFILS[r.principal];
+  const s = PROFILS[r.secondaire];
+  document.documentElement.style.setProperty("--accent", p.couleur);
+
+  $("rName").textContent = p.nom;
+  $("rBranche").textContent = r.principal === "rqk"
+    ? p.branches[r.branche].nom
+    : p.resume;
+
+  const MAX = ANCRE.poids + 4;
+  $("rReleve").innerHTML = ORDRE.map(k =>
+    '<div class="bar-row' + (k === r.principal ? " lead" : "") + '">' +
+      '<span class="bar-label">' + PROFILS[k].nom + '</span>' +
+      '<span class="bar-track"><span class="bar-fill" data-w="' + Math.round(r.scores[k]/MAX*100) + '"></span></span>' +
+      '<span class="bar-num">' + r.scores[k] + '</span>' +
+    '</div>'
+  ).join("");
+
+  $("rHypo").innerHTML = r.ecart < 2
+    ? "Ton profil est peu tranché : <strong>" + p.nom + "</strong> et <strong>" + s.nom + "</strong> se tiennent à " + r.ecart + " point" + (r.ecart > 1 ? "s" : "") + ". Commence par celui-ci, mais garde le second sous la main — il y a une chance réelle que ce soit lui."
+    : "Ce résultat est une <strong>hypothèse</strong>, pas une étiquette. Tu la confirmes ou tu l'invalides sur trois séances, carnet à l'appui. C'est ce qui distingue un diagnostic d'un test de magazine.";
+
+  $("rPortrait").innerHTML = p.portrait.map(t => "<p>" + t + "</p>").join("");
+  $("rForce").textContent = p.force;
+
+  /* Les blocs protocole, vigilance et profil secondaire ne sont plus affichés ici :
+     ils appartiennent à la suite du module. Leurs textes restent dans PROFILS,
+     prêts à être réaffichés si besoin. */
+
+  ecran("r");
+  requestAnimationFrame(() => {
+    document.querySelectorAll(".bar-fill").forEach(b => { b.style.width = b.dataset.w + "%"; });
+  });
+}
+
+$("restart").addEventListener("click", () => {
+  index = 0;
+  reponses.fill(null);
+  document.documentElement.style.setProperty("--accent", "var(--ink)");
+  $("tape").hidden = true;
+  ecran("intro");
+});
+
+construireTicks();
+</script>
+</body>
+</html>
